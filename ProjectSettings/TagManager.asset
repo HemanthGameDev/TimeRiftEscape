@@ -1,0 +1,69 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!78 &1
+TagManager:
+  serializedVersion: 3
+  tags:
+  - Ground
+  - Button
+  - Trap
+  - Door
+  - Enemy
+  - Checkpoint
+  - Fireball
+  - Coin
+  - SpawnPoint
+  layers:
+  - Default
+  - TransparentFX
+  - Ignore Raycast
+  - Player
+  - Water
+  - UI
+  - Ground
+  - Interactable
+  - Trap
+  - TimeAffectedObjects
+  - Coin
+  - Checkpoints
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  m_SortingLayers:
+  - name: Default
+    uniqueID: 0
+    locked: 0
+  - name: Background
+    uniqueID: 2125756853
+    locked: 0
+  - name: Platforms
+    uniqueID: 580095617
+    locked: 0
+  - name: Objects
+    uniqueID: 3708551481
+    locked: 0
+  - name: Player
+    uniqueID: 2258359145
+    locked: 0
+  - name: UI
+    uniqueID: 2623575415
+    locked: 0
+  m_RenderingLayers:
+  - Default
