@@ -16,7 +16,7 @@ public class Trap : MonoBehaviour
             else
             {
                 Debug.Log("Trap activated! Player is dead.");
-                player.TriggerDeath(); // Call a new function in PlayerController
+                player.SendMessage("DieByTrap", SendMessageOptions.DontRequireReceiver); // Call a new function in PlayerController
             }
         }
     }

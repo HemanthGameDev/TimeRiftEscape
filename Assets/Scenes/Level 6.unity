@@ -55861,6 +55861,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 517755340940569564, guid: 4bd60a0d471de674799edfea124b7440, type: 3}
+      propertyPath: m_SortingOrder
+      value: 7
+      objectReference: {fileID: 0}
     - target: {fileID: 2876533544883994531, guid: 4bd60a0d471de674799edfea124b7440, type: 3}
       propertyPath: m_Name
       value: GameOverUI
@@ -57065,6 +57069,7 @@ SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 1453211945}
+  - {fileID: 1392609582}
   - {fileID: 1195075242}
   - {fileID: 1644183608}
   - {fileID: 1243403767}
@@ -57098,7 +57103,6 @@ SceneRoots:
   - {fileID: 748111989}
   - {fileID: 1083325392}
   - {fileID: 1065865765}
-  - {fileID: 1392609582}
   - {fileID: 1831873344}
   - {fileID: 1842252107}
   - {fileID: 127232768}

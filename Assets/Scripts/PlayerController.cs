@@ -213,6 +213,7 @@ public class PlayerController : MonoBehaviour
         ChangeAnimationState(PLAYER_DIE);
         rb.linearVelocity = Vector2.zero;
         this.enabled = false;
+        Invoke(nameof(RespawnAfterTrap), 0.4f);
     }
    
 
