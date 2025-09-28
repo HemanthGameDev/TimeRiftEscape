@@ -1,4 +1,4 @@
-﻿using UnityEngine; 
+using UnityEngine; 
 using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
@@ -6,6 +6,7 @@ public class PlayerController : MonoBehaviour
     private Rigidbody2D rb;
     private Animator animator;
     private Vector2 moveInput;
+    private Vector2 mobileInput; // Mobile input from touch controls
 
     private float jumpForce = 10f;
     private bool isShieldActive = false;
@@ -14,6 +15,7 @@ public class PlayerController : MonoBehaviour
     private float currentSpeed;
     private bool isFlipped = false;
     private bool isDead = false;
+    private bool mobileJumpRequested = false; // Flag for mobile jump input
 
     [SerializeField] private Transform groundCheck;
     [SerializeField] private LayerMask groundLayer;
@@ -39,14 +41,21 @@ public class PlayerController : MonoBehaviour
     {
         if (isDead) return;
 
-        moveInput = new Vector2(Input.GetAxisRaw("Horizontal"), 0);
+        // Combine keyboard/gamepad input with mobile input
+        Vector2 keyboardInput = new Vector2(Input.GetAxisRaw("Horizontal"), 0);
+        moveInput = keyboardInput + mobileInput;
+        
+        // Clamp to prevent over-acceleration when both inputs are active
+        moveInput.x = Mathf.Clamp(moveInput.x, -1f, 1f);
+        
         CheckGround();
         HandleAnimation();
 
-        // Jump using Spacebar (Fixes Input Issue)
-        if (Input.GetKeyDown(KeyCode.Space))
+        // Jump using Spacebar OR mobile jump request
+        if (Input.GetKeyDown(KeyCode.Space) || mobileJumpRequested)
         {
             Jump();
+            mobileJumpRequested = false; // Reset mobile jump flag
         }
     }
 
@@ -214,6 +223,30 @@ public class PlayerController : MonoBehaviour
         rb.linearVelocity = Vector2.zero;
         this.enabled = false;
         Invoke(nameof(RespawnAfterTrap), 0.4f);
+    }
+
+    // Mobile input methods (called by MobileControls script)
+    public void SetMobileMovementInput(Vector2 input)
+    {
+        mobileInput = input;
+        if (input.x != 0)
+        {
+            Debug.Log($"PlayerController: Mobile input received: {input.x}");
+        }
+    }
+
+    public void TriggerMobileJump()
+    {
+        Debug.Log("PlayerController: Mobile jump triggered!");
+        mobileJumpRequested = true;
+    }
+
+    // Public method to check if mobile controls should be active
+    public bool ShouldShowMobileControls()
+    {
+        return Application.isMobilePlatform || 
+               Application.platform == RuntimePlatform.Android || 
+               Application.platform == RuntimePlatform.IPhonePlayer;
     }
    
 
