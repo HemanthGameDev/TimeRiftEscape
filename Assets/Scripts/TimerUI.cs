@@ -14,6 +14,16 @@ public class TimerUI : MonoBehaviour
         }
     }
 
+    public void ForceUpdateDisplay()
+    {
+        if (LevelManager.Instance != null)
+        {
+            float timeRemaining = LevelManager.Instance.GetCurrentTime();
+            UpdateTimerDisplay(timeRemaining);
+            Debug.Log("TimerUI: Force update - displaying time: " + timeRemaining);
+        }
+    }
+
     private void UpdateTimerDisplay(float time)
     {
         int minutes = Mathf.FloorToInt(time / 60);  // Convert seconds to minutes
