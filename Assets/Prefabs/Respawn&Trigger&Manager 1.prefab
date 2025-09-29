@@ -91,6 +91,8 @@ SpriteRenderer:
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
   m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -112,6 +114,7 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 6
@@ -238,6 +241,8 @@ SpriteRenderer:
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
   m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -259,6 +264,7 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 6
@@ -562,6 +568,10 @@ MonoBehaviour:
   levelTime: 60
   gameOverUI: {fileID: 0}
   restartButton: {fileID: 0}
+  playerDeathSound: {fileID: 8300000, guid: 7a45f0d75bacb3d448680984711b3614, type: 3}
+  gameOverSound: {fileID: 8300000, guid: fc7bbf5052847f240802a43c3fe33a33, type: 3}
+  restartSound: {fileID: 8300000, guid: 75b0dc8869ffdf449901635246457e1e, type: 3}
+  audioVolume: 1
 --- !u!1 &8130876825618435993
 GameObject:
   m_ObjectHideFlags: 0
@@ -608,6 +618,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   player: {fileID: 0}
+  currentScoreText: {fileID: 0}
+  highestScoreText: {fileID: 0}
 --- !u!114 &7042554884232564841
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -620,4 +632,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b0bb284e80d2049489776b920ad7c847, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pauseMenuPanel: {fileID: 0}
+  pauseButton: {fileID: 0}
+  backButton: {fileID: 0}
+  pauseButtonSound: {fileID: 8300000, guid: 75b0dc8869ffdf449901635246457e1e, type: 3}
+  backButtonSound: {fileID: 8300000, guid: 75b0dc8869ffdf449901635246457e1e, type: 3}
+  resumeButtonSound: {fileID: 8300000, guid: 75b0dc8869ffdf449901635246457e1e, type: 3}
+  uiSoundVolume: 0.7

@@ -13,7 +13,16 @@ public class TimerTrigger : MonoBehaviour
 
             if (triggerType == TriggerType.Start)
             {
-                LevelManager.Instance.StartTimer();
+                // Only start timer if it's not already running (prevents overriding restored state)
+                if (LevelManager.Instance != null && !LevelManager.Instance.IsTimerRunning())
+                {
+                    LevelManager.Instance.StartTimer();
+                    Debug.Log("TimerTrigger: Started timer");
+                }
+                else
+                {
+                    Debug.Log("TimerTrigger: Timer already running, not starting again");
+                }
             }
             else if (triggerType == TriggerType.End)
             {

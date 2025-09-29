@@ -10,6 +10,7 @@ public class MainMenu : MonoBehaviour
     
     [Header("Button References")]
     public Button startButton;
+    public Button resumeButton; // Add resume button reference
     public Button quitButton;
     
     [Header("Audio Settings")]
@@ -28,23 +29,53 @@ public class MainMenu : MonoBehaviour
 
     private void Start()
     {
+        // FIRST: Handle instructions panel regardless of scene
+        bool instructionsShown = PlayerPrefs.GetInt("InstructionsShown", 0) == 1;
+        if (instructionsShown && instructionsPanel != null)
+        {
+            // Instructions already shown - destroy panel immediately
+            Debug.Log("MainMenu: Instructions already shown - DESTROYING panel immediately");
+            instructionsPanel.SetActive(false);
+            Destroy(instructionsPanel);
+        }
+        
         if (SceneManager.GetActiveScene().name == "Level 1") // Only for Level 1
         {
-            if (PlayerPrefs.GetInt("PausedGame", 0) == 1)
+            bool isPausedGame = PlayerPrefs.GetInt("PausedGame", 0) == 1;
+            
+            if (isPausedGame)
             {
-                if (instructionsPanel != null) instructionsPanel.SetActive(false);
+                // This is a resumed game - never show instructions
+                if (instructionsPanel != null) 
+                {
+                    instructionsPanel.SetActive(false);
+                    Destroy(instructionsPanel);
+                }
                 PlayerPrefs.SetInt("PausedGame", 0);
+                Debug.Log("MainMenu: Resumed game - Instructions panel destroyed");
+            }
+            else if (instructionsShown)
+            {
+                // Instructions have been shown before - already handled above
+                Debug.Log("MainMenu: Instructions already handled - Panel destroyed");
             }
             else
             {
-                Time.timeScale = 0; // Pause game for instructions
-                if (instructionsPanel != null) instructionsPanel.SetActive(true);
+                // First time player - show instructions (only if panel exists and wasn't destroyed)
+                if (instructionsPanel != null)
+                {
+                    Time.timeScale = 0; // Pause game for instructions
+                    instructionsPanel.SetActive(true);
+                    Debug.Log("MainMenu: First time player - Instructions panel shown");
+                }
             }
         }
         else
         {
+            ValidateSaveData(); // Clean up any corrupted save data
             SetupButtonAnimations();
             SetupButtonAudio();
+            UpdateResumeButtonState(); // Check if resume should be available
             EnsureGlobalMusicIsPlaying();
         }
     }
@@ -57,6 +88,38 @@ public class MainMenu : MonoBehaviour
             if (!GlobalMusicManager.Instance.IsPlaying())
             {
                 GlobalMusicManager.Instance.PlayMusic();
+            }
+        }
+    }
+
+    private void ValidateSaveData()
+    {
+        // Check if there's corrupted save data and clean it up
+        bool hasPausedGame = PlayerPrefs.GetInt("PausedGame", 0) == 1;
+        string lastLevel = PlayerPrefs.GetString("LastLevel", "");
+        
+        if (hasPausedGame)
+        {
+            // If PausedGame is set but LastLevel is invalid, clear the paused state
+            bool isValidLevel = !string.IsNullOrEmpty(lastLevel) && 
+                               (lastLevel == "Level 1" || lastLevel == "Level 2" || lastLevel == "Level 3" ||
+                                lastLevel == "Level 4" || lastLevel == "Level 5" || lastLevel == "Level 6");
+            
+            if (!isValidLevel)
+            {
+                Debug.LogWarning("MainMenu: Found corrupted save data - PausedGame=1 but LastLevel='" + lastLevel + "'. Clearing save data.");
+                PlayerPrefs.SetInt("PausedGame", 0);
+                PlayerPrefs.DeleteKey("LastLevel");
+                PlayerPrefs.DeleteKey("SavedTimer");
+                PlayerPrefs.DeleteKey("TimerWasRunning");
+                PlayerPrefs.DeleteKey("PlayerX");
+                PlayerPrefs.DeleteKey("PlayerY");
+                PlayerPrefs.Save();
+                Debug.Log("MainMenu: Corrupted save data cleared. Resume button will be disabled.");
+            }
+            else
+            {
+                Debug.Log("MainMenu: Valid save data found - PausedGame=1, LastLevel='" + lastLevel + "'");
             }
         }
     }
@@ -83,7 +146,13 @@ public class MainMenu : MonoBehaviour
         if (startButton != null)
         {
             startButton.onClick.RemoveAllListeners();
-            startButton.onClick.AddListener(() => StartCoroutine(AnimateButtonClick(startButton, StartGameDelayed)));
+            startButton.onClick.AddListener(() => StartCoroutine(AnimateButtonClick(startButton, StartNewGame)));
+        }
+
+        if (resumeButton != null)
+        {
+            resumeButton.onClick.RemoveAllListeners();
+            resumeButton.onClick.AddListener(() => StartCoroutine(AnimateButtonClick(resumeButton, ResumeGame)));
         }
 
         if (quitButton != null)
@@ -198,13 +267,75 @@ public class MainMenu : MonoBehaviour
         // Only click sounds will play now
     }
 
-    private void StartGameDelayed()
+    private void UpdateResumeButtonState()
     {
+        if (resumeButton != null)
+        {
+            bool hasPausedGame = PlayerPrefs.GetInt("PausedGame", 0) == 1;
+            string lastLevel = PlayerPrefs.GetString("LastLevel", "");
+            
+            // Resume should only be enabled if game is paused AND a valid level is saved
+            bool isValidLevel = !string.IsNullOrEmpty(lastLevel) && 
+                               (lastLevel == "Level 1" || lastLevel == "Level 2" || lastLevel == "Level 3" ||
+                                lastLevel == "Level 4" || lastLevel == "Level 5" || lastLevel == "Level 6");
+            
+            bool canResume = hasPausedGame && isValidLevel;
+            
+            // Enable/disable the resume button based on both conditions
+            resumeButton.interactable = canResume;
+            
+            // Change visual appearance when disabled (gray out)
+            var colors = resumeButton.colors;
+            if (canResume)
+            {
+                colors.normalColor = Color.white; // Normal color when available
+                colors.disabledColor = Color.white;
+            }
+            else
+            {
+                colors.normalColor = Color.gray; // Gray when not available
+                colors.disabledColor = Color.gray;
+            }
+            resumeButton.colors = colors;
+            
+            Debug.Log("MainMenu: Resume button " + (canResume ? "enabled" : "disabled") + 
+                     " - PausedGame: " + hasPausedGame + ", LastLevel: '" + lastLevel + "', Valid: " + isValidLevel);
+        }
+    }
+
+    public void StartNewGame()
+    {
+        // ALWAYS start a completely new game from Level 1 with score 0
+        Debug.Log("MainMenu: Starting NEW GAME - Level 1, Score 0");
+        
+        // Clear all saved game state
         PlayerPrefs.SetInt("PausedGame", 0);
-        PlayerPrefs.SetString("LastLevel", "Level 1"); // Start from Level 1
+        PlayerPrefs.SetString("LastLevel", ""); // Clear to indicate new game
         PlayerPrefs.SetFloat("PlayerX", 0f); // Reset Player Position
         PlayerPrefs.SetFloat("PlayerY", 0f);
+        PlayerPrefs.SetInt("CurrentScore", 0); // Reset score to 0
+        
+        // CHOICE: Uncomment the line below if you want instructions to show for EVERY new game
+        // PlayerPrefs.SetInt("InstructionsShown", 0);
+        
+        // Clear timer state
+        PlayerPrefs.DeleteKey("SavedTimer");
+        PlayerPrefs.DeleteKey("TimerWasRunning");
+        
+        // Clear coin collection state for all levels
+        for (int i = 1; i <= 6; i++)
+        {
+            PlayerPrefs.DeleteKey("ExistingCoins_Level " + i);
+        }
+        
+        PlayerPrefs.Save();
         SceneManager.LoadScene("Level 1");
+    }
+
+    private void StartGameDelayed()
+    {
+        // This method is now deprecated - use StartNewGame instead
+        StartNewGame();
     }
 
     private void QuitGameDelayed()
@@ -215,21 +346,59 @@ public class MainMenu : MonoBehaviour
 
     public void StartGame()
     {
-        StartGameDelayed();
+        StartNewGame(); // Always start new game
     }
 
     public void ResumeGame()
     {
-        if (PlayerPrefs.GetInt("PausedGame", 0) == 1)
+        // First, validate that we can actually resume
+        bool hasPausedGame = PlayerPrefs.GetInt("PausedGame", 0) == 1;
+        string lastLevel = PlayerPrefs.GetString("LastLevel", "Level 1");
+        
+        if (!hasPausedGame)
         {
-            string lastLevel = PlayerPrefs.GetString("LastLevel", "Level 1"); // Default to Level 1 if no saved level
-            SceneManager.LoadScene(lastLevel);
+            Debug.LogWarning("MainMenu: Cannot resume - no paused game found!");
+            return;
         }
+        
+        // Validate the lastLevel before attempting to load
+        if (string.IsNullOrEmpty(lastLevel) || lastLevel.Trim() == "")
+        {
+            Debug.LogError("MainMenu: LastLevel is empty! Clearing corrupted save data and aborting resume.");
+            ValidateSaveData(); // This will clear the corrupted data
+            UpdateResumeButtonState(); // Update button state to reflect cleared data
+            return;
+        }
+        
+        // Double-check that the scene name is valid before loading
+        if (lastLevel != "Level 1" && lastLevel != "Level 2" && lastLevel != "Level 3" && 
+            lastLevel != "Level 4" && lastLevel != "Level 5" && lastLevel != "Level 6")
+        {
+            Debug.LogError("MainMenu: Invalid level name '" + lastLevel + "'. Clearing corrupted save data and aborting resume.");
+            ValidateSaveData(); // This will clear the corrupted data
+            UpdateResumeButtonState(); // Update button state to reflect cleared data
+            return;
+        }
+        
+        int savedScore = PlayerPrefs.GetInt("CurrentScore", 0);
+        Debug.Log("MainMenu: RESUMING GAME - Level: '" + lastLevel + "', Score: " + savedScore);
+        Debug.Log("MainMenu: PlayerPrefs values - PausedGame: " + PlayerPrefs.GetInt("PausedGame", 0) + 
+                 ", LastLevel: '" + PlayerPrefs.GetString("LastLevel", "NOT_FOUND") + "'");
+        
+        // All checks passed - safe to load the scene
+        SceneManager.LoadScene(lastLevel);
     }
 
     public void QuitGame()
     {
         QuitGameDelayed();
+    }
+
+    public void RefreshMenuState()
+    {
+        // Call this method when returning to main menu to update button states
+        UpdateResumeButtonState();
+        Debug.Log("MainMenu: Menu state refreshed");
     }
 
     public void LoadGameScene()

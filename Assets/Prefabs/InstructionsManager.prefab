@@ -47,3 +47,5 @@ MonoBehaviour:
   instructionsPanel: {fileID: 0}
   backButton: {fileID: 0}
   pauseButton: {fileID: 0}
+  continueButtonSound: {fileID: 8300000, guid: 75b0dc8869ffdf449901635246457e1e, type: 3}
+  uiSoundVolume: 0.7

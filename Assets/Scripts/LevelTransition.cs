@@ -9,11 +9,20 @@ public class LevelTransition : MonoBehaviour
     {
         if (other.CompareTag("Player")) // Ensure only the player triggers transition
         {
+            // Save current score and game state before transitioning
+            if (GameManager.Instance != null)
+            {
+                GameManager.Instance.SaveCurrentScoreForTransition();
+            }
+            
             int currentSceneIndex = SceneManager.GetActiveScene().buildIndex; // Get current scene index
             int targetSceneIndex = moveToNextLevel ? currentSceneIndex + 1 : currentSceneIndex - 1; // Decide next scene
 
             if (targetSceneIndex >= 0 && targetSceneIndex < SceneManager.sceneCountInBuildSettings)
             {
+                // Clear pause state for normal level progression
+                PlayerPrefs.SetInt("PausedGame", 0);
+                Debug.Log("LevelTransition: Moving to scene index " + targetSceneIndex + " - Score preserved, pause state cleared");
                 SceneManager.LoadScene(targetSceneIndex); // Load the target scene
             }
             else
