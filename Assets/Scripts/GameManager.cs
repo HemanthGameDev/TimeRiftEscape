@@ -55,9 +55,6 @@ public class GameManager : MonoBehaviour
     
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        // FIRST: Handle instructions cleanup regardless of scene
-        HandleInstructionsCleanup();
-        
         // Re-find references when a new scene loads
         FindSceneReferences();
         RestorePlayerPosition();
@@ -335,37 +332,6 @@ public class GameManager : MonoBehaviour
         }
     }
     
-    private void HandleInstructionsCleanup()
-    {
-        // Check if instructions have been shown - if so, destroy any instruction panels in the scene
-        bool instructionsShown = PlayerPrefs.GetInt("InstructionsShown", 0) == 1;
-        
-        if (instructionsShown)
-        {
-            // Find and destroy all InstructionsManager GameObjects
-            InstructionsManager[] instructionsManagers = FindObjectsByType<InstructionsManager>(FindObjectsSortMode.None);
-            foreach (InstructionsManager manager in instructionsManagers)
-            {
-                if (manager != null)
-                {
-                    Debug.Log("GameManager: DESTROYING InstructionsManager GameObject - instructions already shown");
-                    Destroy(manager.gameObject);
-                }
-            }
-            
-            // Also find any GameObject with "Instruction" in the name and destroy it
-            GameObject[] allObjects = FindObjectsByType<GameObject>(FindObjectsSortMode.None);
-            foreach (GameObject obj in allObjects)
-            {
-                if (obj != null && obj.name.ToLower().Contains("instruction"))
-                {
-                    Debug.Log("GameManager: DESTROYING Instructions GameObject: " + obj.name);
-                    Destroy(obj);
-                }
-            }
-        }
-    }
-    
     private void RestoreCollectedCoinsState()
     {
         if (PlayerPrefs.GetInt("PausedGame", 0) == 1)
@@ -454,6 +420,13 @@ public class GameManager : MonoBehaviour
         // Clear paused game state
         PlayerPrefs.SetInt("PausedGame", 0);
         PlayerPrefs.SetInt("CurrentScore", 0); // Explicitly reset current score
+        
+        // Clear instruction-related preferences (no longer needed)
+        if (PlayerPrefs.HasKey("InstructionsShown"))
+        {
+            PlayerPrefs.DeleteKey("InstructionsShown");
+        }
+        
         PlayerPrefs.Save();
         
         // Reset current score in memory

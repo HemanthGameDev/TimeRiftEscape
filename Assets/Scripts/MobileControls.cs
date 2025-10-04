@@ -15,8 +15,8 @@ public class MobileControls : MonoBehaviour
     public Button jumpButton;
     
     [Header("Button Visual Settings")]
-    public float pressedAlpha = 0.7f;
-    public float normalAlpha = 1f;
+    public float pressedAlpha = 0.6f;
+    public float normalAlpha = 0.7f;
     public float buttonScaleEffect = 0.95f;
     public float animationDuration = 0.1f;
     

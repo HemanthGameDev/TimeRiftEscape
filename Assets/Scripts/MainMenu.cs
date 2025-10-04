@@ -5,9 +5,6 @@ using System.Collections;
 
 public class MainMenu : MonoBehaviour
 {
-    [Header("Menu Settings")]
-    public GameObject instructionsPanel; // Assign in Inspector (ONLY in Level 1 Scene)
-    
     [Header("Button References")]
     public Button startButton;
     public Button resumeButton; // Add resume button reference
@@ -29,55 +26,11 @@ public class MainMenu : MonoBehaviour
 
     private void Start()
     {
-        // FIRST: Handle instructions panel regardless of scene
-        bool instructionsShown = PlayerPrefs.GetInt("InstructionsShown", 0) == 1;
-        if (instructionsShown && instructionsPanel != null)
-        {
-            // Instructions already shown - destroy panel immediately
-            Debug.Log("MainMenu: Instructions already shown - DESTROYING panel immediately");
-            instructionsPanel.SetActive(false);
-            Destroy(instructionsPanel);
-        }
-        
-        if (SceneManager.GetActiveScene().name == "Level 1") // Only for Level 1
-        {
-            bool isPausedGame = PlayerPrefs.GetInt("PausedGame", 0) == 1;
-            
-            if (isPausedGame)
-            {
-                // This is a resumed game - never show instructions
-                if (instructionsPanel != null) 
-                {
-                    instructionsPanel.SetActive(false);
-                    Destroy(instructionsPanel);
-                }
-                PlayerPrefs.SetInt("PausedGame", 0);
-                Debug.Log("MainMenu: Resumed game - Instructions panel destroyed");
-            }
-            else if (instructionsShown)
-            {
-                // Instructions have been shown before - already handled above
-                Debug.Log("MainMenu: Instructions already handled - Panel destroyed");
-            }
-            else
-            {
-                // First time player - show instructions (only if panel exists and wasn't destroyed)
-                if (instructionsPanel != null)
-                {
-                    Time.timeScale = 0; // Pause game for instructions
-                    instructionsPanel.SetActive(true);
-                    Debug.Log("MainMenu: First time player - Instructions panel shown");
-                }
-            }
-        }
-        else
-        {
-            ValidateSaveData(); // Clean up any corrupted save data
-            SetupButtonAnimations();
-            SetupButtonAudio();
-            UpdateResumeButtonState(); // Check if resume should be available
-            EnsureGlobalMusicIsPlaying();
-        }
+        ValidateSaveData(); // Clean up any corrupted save data
+        SetupButtonAnimations();
+        SetupButtonAudio();
+        UpdateResumeButtonState(); // Check if resume should be available
+        EnsureGlobalMusicIsPlaying();
     }
 
     private void EnsureGlobalMusicIsPlaying()
